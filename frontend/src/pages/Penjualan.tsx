@@ -1,13 +1,14 @@
 import PenjualanItem from "../components/penjualan/PenjualanItem";
 import PenjualanAddFormField from "../components/penjualan/PenjualanAddFormField";
+import PenjualanPelanggan from "../components/penjualan/PenjualanPelanggan";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlus,
     faCheck,
     faXmark,
     faMinus,
+    faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
 
 export default function Penjualan() {
@@ -18,6 +19,11 @@ export default function Penjualan() {
         subTotal: number;
     }
 
+    interface AllPenjualanFormDataWithUser {
+        pelanggan: string;
+        pelangganId: string;
+        data: AllPenjualanFormData[];
+    }
     interface DetailPenjualan {
         id: string;
         jumlahProduk: number;
@@ -33,32 +39,47 @@ export default function Penjualan() {
         detailPenjualan: DetailPenjualan[];
     }
 
+    interface PelangganData {
+        id: string;
+        namaPelanggan: string;
+        alamat: string;
+        nomorTelepon: string;
+    }
+
     const [isAdd, setIsAdd] = useState<number>(0);
 
-    const [allPenjualanFormData, setAllPenjualanFormData] = useState<
-        AllPenjualanFormData[]
-    >([]);
+    const [allPenjualanFormData, setAllPenjualanFormData] =
+        useState<AllPenjualanFormDataWithUser>({
+            pelanggan: "",
+            pelangganId: "",
+            data: [],
+        });
 
     const [penjualanData, setPenjualanData] = useState<PenjualanData[]>([]);
+
+    const [onInputFokus, setOnInputFokus] = useState<boolean>(false);
+
+    const [pelangganData, setPelangganData] = useState<PelangganData[]>([]);
 
     console.log(allPenjualanFormData);
 
     async function onSubmitForm() {
         try {
-            setIsAdd(0);
-
-            Swal.fire({
-                icon: "success",
-                text: "Semua data sudah benar!!!",
+            const response = await fetch("http://localhost:3000/penjualan", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "Application/json",
+                },
+                body: JSON.stringify(allPenjualanFormData),
             });
+
+            const responseJson = await response.json();
+
+            console.log(responseJson);
+
+            setIsAdd(0);
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                Swal.fire({
-                    icon: "error",
-                    text: err.message,
-                });
-                console.error(err);
-            }
+            console.error(err);
         }
     }
 
@@ -81,6 +102,8 @@ export default function Penjualan() {
 
                 const responseJson = await response.json();
 
+                console.log(responseJson);
+
                 setPenjualanData(responseJson.data);
             } catch (err) {
                 console.error(err);
@@ -88,6 +111,22 @@ export default function Penjualan() {
         }
 
         getPenjualan();
+    }, []);
+
+    useEffect(() => {
+        async function getPelanggan() {
+            try {
+                const response = await fetch("http://localhost:3000/pelanggan");
+
+                const responseJson = await response.json();
+
+                setPelangganData(responseJson.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getPelanggan();
     }, []);
 
     const penjualanItemMap = penjualanData.map((item) => {
@@ -98,6 +137,17 @@ export default function Penjualan() {
                 tanggalPenjualan={item.tanggalPenjualan}
                 totalHarga={item.totalHarga}
                 detailPenjualan={item.detailPenjualan}
+            />
+        );
+    });
+
+    const penjualanPelangganMap = pelangganData.map((item) => {
+        return (
+            <PenjualanPelanggan
+                key={item.id}
+                id={item.id}
+                pelanggan={item.namaPelanggan}
+                setAllPenjualanFormData={setAllPenjualanFormData}
             />
         );
     });
@@ -141,6 +191,35 @@ export default function Penjualan() {
                     )}
                 </div>
                 <div className="flex max-h-[60dvh] flex-col gap-4 overflow-y-auto">
+                    {isAdd > 0 && (
+                        <div className="flex items-center gap-4">
+                            <label htmlFor="pelanggan">
+                                <FontAwesomeIcon icon={faUser} />
+                            </label>
+                            <div className="relative">
+                                <input
+                                    className="rounded-sm border p-[0.2rem_0.5rem]"
+                                    id="pelanggan"
+                                    type="text"
+                                    placeholder="Pelanggan"
+                                    onFocus={() => setOnInputFokus(true)}
+                                    onBlur={() =>
+                                        setTimeout(
+                                            () => setOnInputFokus(false),
+                                            100,
+                                        )
+                                    }
+                                    value={allPenjualanFormData.pelanggan}
+                                    readOnly
+                                />
+                                <div
+                                    className={`${onInputFokus ? "flex" : "hidden"} absolute left-0 z-10 max-h-40 flex-col gap-2 overflow-auto rounded-sm bg-white p-2 shadow`}
+                                >
+                                    {penjualanPelangganMap}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {isAdd > 0 && (
                         <form className="flex flex-col gap-2 rounded-sm p-4 shadow-md">
                             {penjualanAddFormFieldMap}

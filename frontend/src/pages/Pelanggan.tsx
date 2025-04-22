@@ -8,7 +8,6 @@ import {
     faLocationDot,
     faPhone,
 } from "@fortawesome/free-solid-svg-icons";
-import Swal from "sweetalert2";
 import { useState, ChangeEvent, useEffect } from "react";
 
 export default function Pelanggan() {
@@ -54,17 +53,8 @@ export default function Pelanggan() {
             }
 
             setIsAdd(false);
-
-            Swal.fire({
-                icon: "success",
-                text: "Semua data sudah benar!!!",
-            });
         } catch (err: unknown) {
             if (err instanceof Error) {
-                Swal.fire({
-                    icon: "error",
-                    text: err.message,
-                });
                 console.error(err);
             }
         }

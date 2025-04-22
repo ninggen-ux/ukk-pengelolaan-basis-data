@@ -19,10 +19,16 @@ interface AllPenjualanFormData {
     hargaPerProduk: number;
     subTotal: number;
 }
-
+interface AllPenjualanFormDataWithUser {
+    pelanggan: string;
+    pelangganId: string;
+    data: AllPenjualanFormData[];
+}
 interface Props {
     id: number;
-    setAllPenjualanFormData: Dispatch<SetStateAction<AllPenjualanFormData[]>>;
+    setAllPenjualanFormData: Dispatch<
+        SetStateAction<AllPenjualanFormDataWithUser>
+    >;
 }
 
 export default function PenjualanAddFormField({
@@ -31,6 +37,7 @@ export default function PenjualanAddFormField({
 }: Props) {
     interface PenjualanFormData {
         produk: string;
+        produkId: string;
         jumlahProduk: number;
         hargaPerProduk: number;
         subTotal: number;
@@ -47,6 +54,7 @@ export default function PenjualanAddFormField({
     const [penjualanFormData, setPenjualanFormData] =
         useState<PenjualanFormData>({
             produk: "",
+            produkId: "",
             hargaPerProduk: 0,
             jumlahProduk: 1,
             subTotal: 0,
@@ -81,6 +89,7 @@ export default function PenjualanAddFormField({
         return (
             <PenjualanAddFormFieldProduk
                 key={item.id}
+                id={item.id}
                 setPenjualanFormData={setPenjualanFormData}
                 namaProduk={item.namaProduk}
                 harga={item.harga}
@@ -108,9 +117,11 @@ export default function PenjualanAddFormField({
 
     useEffect(() => {
         setAllPenjualanFormData((prevState) => {
-            const newData = [...prevState];
+            const prevStateData = prevState.data;
+
+            const newData = [...prevStateData];
             newData[id] = penjualanFormData;
-            return newData;
+            return { ...prevState, data: newData };
         });
     }, [penjualanFormData, id, setAllPenjualanFormData]);
 
