@@ -12,7 +12,6 @@ import {
     Dispatch,
     SetStateAction,
 } from "react";
-import { contohProduk } from "./ContohDataProduk.tsx"; // Hanya contoh data saja.
 
 interface AllPenjualanFormData {
     produk: string;
@@ -36,8 +35,15 @@ export default function PenjualanAddFormField({
         hargaPerProduk: number;
         subTotal: number;
     }
+    interface ProdukData {
+        id: string;
+        namaProduk: string;
+        harga: number;
+        stok: number;
+    }
 
     const [onInputFokus, setOnInputFokus] = useState<boolean>(false);
+
     const [penjualanFormData, setPenjualanFormData] =
         useState<PenjualanFormData>({
             produk: "",
@@ -46,16 +52,7 @@ export default function PenjualanAddFormField({
             subTotal: 0,
         });
 
-    const penjualanAddFormFieldProdukMap = contohProduk.map((item, index) => {
-        return (
-            <PenjualanAddFormFieldProduk
-                key={index}
-                setPenjualanFormData={setPenjualanFormData}
-                namaProduk={item.namaProduk}
-                harga={item.harga}
-            />
-        );
-    });
+    const [produkData, setProdukData] = useState<ProdukData[]>([]);
 
     function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
         const { value, name } = e.target;
@@ -63,6 +60,33 @@ export default function PenjualanAddFormField({
             return { ...prevState, [name]: value };
         });
     }
+
+    useEffect(() => {
+        async function getProduk() {
+            try {
+                const response = await fetch("http://localhost:3000/produk");
+
+                const responseJson = await response.json();
+
+                setProdukData(responseJson.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getProduk();
+    });
+
+    const penjualanAddFormFieldProdukMap = produkData.map((item) => {
+        return (
+            <PenjualanAddFormFieldProduk
+                key={item.id}
+                setPenjualanFormData={setPenjualanFormData}
+                namaProduk={item.namaProduk}
+                harga={item.harga}
+            />
+        );
+    });
 
     useEffect(() => {
         if (

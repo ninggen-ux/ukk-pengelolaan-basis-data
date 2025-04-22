@@ -5,20 +5,30 @@ import {
     faRupiahSign,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function PenjualanItemDetail() {
+interface Props {
+    jumlahProduk: number;
+    produk: string;
+    subTotal: string;
+}
+
+export default function PenjualanItemDetail({
+    jumlahProduk,
+    produk,
+    subTotal,
+}: Props) {
     return (
         <div className="flex flex-col rounded-sm p-4 shadow-md">
             <div className="flex items-center gap-4">
                 <FontAwesomeIcon className="w-4" icon={faShoppingCart} />
-                <p>Lorem Ipsum</p>
+                <p>{produk}</p>
             </div>
             <div className="flex items-center gap-4">
                 <FontAwesomeIcon className="w-4" icon={faBoxesStacked} />
-                <p>xx</p>
+                <p>{jumlahProduk}</p>
             </div>
             <div className="flex items-center gap-4">
                 <FontAwesomeIcon className="w-4" icon={faRupiahSign} />
-                <p>xx.xxx.xxx</p>
+                <p>{subTotal}</p>
             </div>
         </div>
     );

@@ -5,20 +5,30 @@ import {
     faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function PelangganItem() {
+interface Props {
+    namaPelanggan: string;
+    alamat: string;
+    nomorTelepon: string;
+}
+
+export default function PelangganItem({
+    namaPelanggan,
+    alamat,
+    nomorTelepon,
+}: Props) {
     return (
         <div className="flex flex-col rounded-sm p-4 shadow-md">
             <div className="flex items-center gap-4">
                 <FontAwesomeIcon className="w-4" icon={faUser} />
-                <p>Lorem Ipsum</p>
+                <p>{namaPelanggan}</p>
             </div>
             <div className="flex items-center gap-4">
                 <FontAwesomeIcon className="w-4" icon={faLocationDot} />
-                <p>Consectetur adipiscing elit</p>
+                <p>{alamat}</p>
             </div>
             <div className="flex items-center gap-4">
                 <FontAwesomeIcon className="w-4" icon={faPhone} />
-                <p>+62 xxx-xxxx-xxxx</p>
+                <p>{nomorTelepon}</p>
             </div>
         </div>
     );

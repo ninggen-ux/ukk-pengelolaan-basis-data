@@ -9,7 +9,7 @@ import {
     faBoxesStacked,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 
 export default function Produk() {
     interface ProdukFormData {
@@ -18,12 +18,22 @@ export default function Produk() {
         stok: number;
     }
 
+    interface ProdukData {
+        id: string;
+        namaProduk: string;
+        harga: string;
+        stok: number;
+    }
+
     const [isAdd, setIsAdd] = useState<boolean>(false);
+
     const [produkFormData, setProdukFormData] = useState<ProdukFormData>({
         namaProduk: "",
         harga: 0,
         stok: 0,
     });
+
+    const [produkData, setProdukData] = useState<ProdukData[]>([]);
 
     function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
         const { value, name } = e.target;
@@ -58,6 +68,33 @@ export default function Produk() {
             }
         }
     }
+
+    useEffect(() => {
+        async function getProduk() {
+            try {
+                const response = await fetch("http://localhost:3000/produk");
+
+                const responseJson = await response.json();
+
+                setProdukData(responseJson.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getProduk();
+    });
+
+    const produkItemMap = produkData.map((item) => {
+        return (
+            <ProdukItem
+                key={item.id}
+                namaProduk={item.namaProduk}
+                harga={item.harga}
+                stok={item.stok}
+            />
+        );
+    });
 
     return (
         <div className="flex w-full flex-col items-center gap-4">
@@ -153,16 +190,7 @@ export default function Produk() {
                             </div>
                         </form>
                     )}
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
-                    <ProdukItem />
+                    {produkItemMap}
                 </div>
             </div>
         </div>

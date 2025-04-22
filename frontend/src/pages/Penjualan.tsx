@@ -8,7 +8,7 @@ import {
     faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Penjualan() {
     interface AllPenjualanFormData {
@@ -18,10 +18,28 @@ export default function Penjualan() {
         subTotal: number;
     }
 
+    interface DetailPenjualan {
+        id: string;
+        jumlahProduk: number;
+        produk: string;
+        subTotal: string;
+    }
+
+    interface PenjualanData {
+        id: string;
+        pelanggan: string;
+        tanggalPenjualan: string;
+        totalHarga: string;
+        detailPenjualan: DetailPenjualan[];
+    }
+
     const [isAdd, setIsAdd] = useState<number>(0);
+
     const [allPenjualanFormData, setAllPenjualanFormData] = useState<
         AllPenjualanFormData[]
     >([]);
+
+    const [penjualanData, setPenjualanData] = useState<PenjualanData[]>([]);
 
     console.log(allPenjualanFormData);
 
@@ -55,6 +73,34 @@ export default function Penjualan() {
             );
         },
     );
+
+    useEffect(() => {
+        async function getPenjualan() {
+            try {
+                const response = await fetch("http://localhost:3000/penjualan");
+
+                const responseJson = await response.json();
+
+                setPenjualanData(responseJson.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getPenjualan();
+    }, []);
+
+    const penjualanItemMap = penjualanData.map((item) => {
+        return (
+            <PenjualanItem
+                key={item.id}
+                pelanggan={item.pelanggan}
+                tanggalPenjualan={item.tanggalPenjualan}
+                totalHarga={item.totalHarga}
+                detailPenjualan={item.detailPenjualan}
+            />
+        );
+    });
 
     return (
         <div className="flex w-full flex-col items-center gap-4">
@@ -126,16 +172,7 @@ export default function Penjualan() {
                             </button>
                         )}
                     </div>
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
-                    <PenjualanItem />
+                    {penjualanItemMap}
                 </div>
             </div>
         </div>

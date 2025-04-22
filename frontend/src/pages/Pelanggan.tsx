@@ -9,7 +9,7 @@ import {
     faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 
 export default function Pelanggan() {
     interface PelangganFormData {
@@ -18,13 +18,23 @@ export default function Pelanggan() {
         nomorTelepon: string;
     }
 
+    interface PelangganData {
+        id: string;
+        namaPelanggan: string;
+        alamat: string;
+        nomorTelepon: string;
+    }
+
     const [isAdd, setIsAdd] = useState<boolean>(false);
+
     const [pelangganFormData, setPelangganFormData] =
         useState<PelangganFormData>({
             namaPelanggan: "",
             alamat: "",
             nomorTelepon: "",
         });
+
+    const [pelangganData, setPelangganData] = useState<PelangganData[]>([]);
 
     function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
         const { value, name } = e.target;
@@ -59,6 +69,33 @@ export default function Pelanggan() {
             }
         }
     }
+
+    useEffect(() => {
+        async function getPelanggan() {
+            try {
+                const response = await fetch("http://localhost:3000/pelanggan");
+
+                const responseJson = await response.json();
+
+                setPelangganData(responseJson.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getPelanggan();
+    });
+
+    const pelangganItemMap = pelangganData.map((item) => {
+        return (
+            <PelangganItem
+                key={item.id}
+                namaPelanggan={item.namaPelanggan}
+                alamat={item.alamat}
+                nomorTelepon={item.nomorTelepon}
+            />
+        );
+    });
 
     return (
         <div className="flex w-full flex-col items-center gap-4">
@@ -154,16 +191,7 @@ export default function Pelanggan() {
                             </div>
                         </form>
                     )}
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
-                    <PelangganItem />
+                    {pelangganItemMap}
                 </div>
             </div>
         </div>
