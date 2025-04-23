@@ -9,6 +9,7 @@ import {
     faMinus,
     faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
 
 export default function Penjualan() {
@@ -61,25 +62,34 @@ export default function Penjualan() {
 
     const [pelangganData, setPelangganData] = useState<PelangganData[]>([]);
 
-    console.log(allPenjualanFormData);
-
     async function onSubmitForm() {
         try {
             const response = await fetch("http://localhost:3000/penjualan", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "Application/json",
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify(allPenjualanFormData),
             });
 
             const responseJson = await response.json();
 
-            console.log(responseJson);
+            if (responseJson.status === "success") {
+                setIsAdd(0);
 
-            setIsAdd(0);
+                Swal.fire({
+                    icon: "success",
+                    text: responseJson.message,
+                });
+            }
         } catch (err: unknown) {
-            console.error(err);
+            if (err instanceof Error) {
+                Swal.fire({
+                    icon: "error",
+                    text: err.message,
+                });
+                console.error(err);
+            }
         }
     }
 
@@ -101,8 +111,6 @@ export default function Penjualan() {
                 const response = await fetch("http://localhost:3000/penjualan");
 
                 const responseJson = await response.json();
-
-                console.log(responseJson);
 
                 setPenjualanData(responseJson.data);
             } catch (err) {
@@ -133,6 +141,7 @@ export default function Penjualan() {
         return (
             <PenjualanItem
                 key={item.id}
+                id={item.id}
                 pelanggan={item.pelanggan}
                 tanggalPenjualan={item.tanggalPenjualan}
                 totalHarga={item.totalHarga}

@@ -52,12 +52,24 @@ export default function Produk() {
                 throw new Error("Tolong isi Stok Produk");
             }
 
-            setIsAdd(false);
-
-            Swal.fire({
-                icon: "success",
-                text: "Semua data sudah benar!!!",
+            const response = await fetch("http://localhost:3000/produk", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(produkFormData),
             });
+
+            const responseJson = await response.json();
+
+            if (responseJson.status === "success") {
+                setIsAdd(false);
+
+                Swal.fire({
+                    icon: "success",
+                    text: responseJson.message,
+                });
+            }
         } catch (err: unknown) {
             if (err instanceof Error) {
                 Swal.fire({
@@ -83,12 +95,13 @@ export default function Produk() {
         }
 
         getProduk();
-    });
+    }, []);
 
     const produkItemMap = produkData.map((item) => {
         return (
             <ProdukItem
                 key={item.id}
+                id={item.id}
                 namaProduk={item.namaProduk}
                 harga={item.harga}
                 stok={item.stok}

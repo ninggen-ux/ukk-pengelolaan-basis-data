@@ -8,6 +8,7 @@ import {
     faLocationDot,
     faPhone,
 } from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2";
 import { useState, ChangeEvent, useEffect } from "react";
 
 export default function Pelanggan() {
@@ -52,10 +53,33 @@ export default function Pelanggan() {
                 throw new Error("Tolong isi Nomor Telepon");
             }
 
-            setIsAdd(false);
+            const response = await fetch("http://localhost:3000/pelanggan", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(pelangganFormData),
+            });
+
+            const responseJson = await response.json();
+
+            if (responseJson.status === "success") {
+                setIsAdd(false);
+
+                Swal.fire({
+                    icon: "success",
+                    text: responseJson.message,
+                });
+            }
         } catch (err: unknown) {
             if (err instanceof Error) {
-                console.error(err);
+                if (err instanceof Error) {
+                    Swal.fire({
+                        icon: "error",
+                        text: err.message,
+                    });
+                    console.error(err);
+                }
             }
         }
     }
@@ -74,12 +98,13 @@ export default function Pelanggan() {
         }
 
         getPelanggan();
-    });
+    }, []);
 
     const pelangganItemMap = pelangganData.map((item) => {
         return (
             <PelangganItem
                 key={item.id}
+                id={item.id}
                 namaPelanggan={item.namaPelanggan}
                 alamat={item.alamat}
                 nomorTelepon={item.nomorTelepon}
